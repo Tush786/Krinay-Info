@@ -1,25 +1,113 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+// import "./styles.css";
+import { AppBar } from "@material-ui/core";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+import IconButton from "@material-ui/core/IconButton";
+// import { MdMenu } from "react-icons/md";
+import Form from "./Component/Form";
+import Todos from "./Component/Todo";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      inputText: "",
+      todos: []
+    };
+  }
+
+  inputHandler = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value,
+      error: e.target.value === "" ? true : false
+    });
+  };
+
+  addToDoHandler = (e) => {
+    e.preventDefault();
+
+    if (this.state.inputText !== "") {
+      this.setState({
+        todos: [
+          ...this.state.todos,
+          {
+            text: this.state.inputText,
+            id: Math.random() * 100,
+            is_completed: false
+          }
+        ],
+        inputText: ""
+      });
+    } else {
+      this.setState({
+        error: true
+      });
+    }
+  };
+
+  toDoDeleteHandler = (todo) => {
+    const { todos = [] } = this.state;
+
+    this.setState({
+      todos: todos.filter((element) => element.id !== todo.id)
+    });
+  };
+
+  toDoCompleteHandler = (todo) => {
+    const { todos = [] } = this.state;
+
+    this.setState({
+      todos: todos.map((item) => {
+        if (item.id === todo.id) {
+          return {
+            ...item,
+            is_completed: !item.is_completed
+          };
+        }
+        return item;
+      })
+    });
+  };
+
+  render() {
+    return (
+      <div className="App">
+        <AppBar position="static">
+          <Toolbar variant="dense">
+            <IconButton edge="start" color="inherit" aria-label="menu">
+              {/* <MdMenu /> */}
+            </IconButton>
+            <Typography variant="h6" color="inherit">
+              React To-Do App
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <div style={styles.form} className="contatiner">
+          <Form
+            state={this.state}
+            addToDoHandler={this.addToDoHandler}
+            inputHandler={this.inputHandler}
+          />
+          <br />
+          <div>
+            <Todos
+              toDoDeleteHandler={this.toDoDeleteHandler}
+              toDoCompleteHandler={this.toDoCompleteHandler}
+              todos={this.state.todos}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
+
+const styles = {
+  form: {
+    marginTop: 40
+  }
+};
 
 export default App;
